@@ -1,0 +1,17 @@
+# System packages
+htop
+tree
+tmux
+screen
+curl
+wget
+netcat
+nmap
+ffmpeg
+imagemagick
+clang-format
+clang-tidy
+cppcheck
+i2c-tools
+can-utils
+mosquitto-clients

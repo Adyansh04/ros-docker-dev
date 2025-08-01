@@ -1,0 +1,50 @@
+# .dockerignore
+# Exclude unnecessary files from Docker build context
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+*.md
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.pyc
+__pycache__/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Node modules (if any)
+node_modules/
+
+# Docker files (except the ones we need)
+*.dockerfile
+docker-compose.override.yml
+
+# Workspace build artifacts
+workspaces/*/build/
+workspaces/*/devel/
+workspaces/*/install/
+workspaces/*/log/

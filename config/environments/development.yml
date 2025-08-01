@@ -1,0 +1,68 @@
+ros:
+  distro: humble
+  packages:
+    # Navigation and SLAM
+    - navigation2
+    - nav2-bringup
+    - slam-toolbox
+    - cartographer-ros
+    
+    # Manipulation
+    - moveit2
+    - moveit-planners
+    - moveit-servo
+    
+    # Perception
+    - vision-msgs
+    - image-transport
+    - cv-bridge
+    
+    # Common tools
+    - rqt
+    - rqt-common-plugins
+    - rviz2
+    - robot-state-publisher
+    - joint-state-publisher-gui
+
+development:
+  debug: true
+  hot_reload: false  # We decided not to implement this
+  testing: true
+  documentation: true
+  
+  # Code quality tools
+  pre_commit_hooks:
+    - black
+    - flake8
+    - clang-format
+    - cppcheck
+  
+  # Performance profiling
+  profiling_tools:
+    - valgrind
+    - perf
+    - hotspot
+    - heaptrack
+
+gpu:
+  enabled: false
+  cuda_version: "12.2"
+  
+simulation:
+  gazebo: true
+  ignition: true
+  webots: false
+
+testing:
+  frameworks:
+    - pytest
+    - gtest
+    - rostest  # ROS1
+    - launch-testing  # ROS2
+  
+  coverage: true
+  
+documentation:
+  doxygen: true
+  sphinx: false
+  rosdoc2: true  # ROS2 only
