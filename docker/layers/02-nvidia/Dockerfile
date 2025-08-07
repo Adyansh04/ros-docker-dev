@@ -14,7 +14,7 @@ LABEL cuda_version="${CUDA_VERSION}"
 # Install OpenGL and GUI libraries for graphics applications
 RUN apt-get update && apt-get install -y \
     # OpenGL libraries
-    libgl1-mesa-glx \
+    libgl1-mesa-dev \
     libgl1-mesa-dri \
     libglu1-mesa \
     # X11 and GUI libraries
