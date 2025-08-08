@@ -41,7 +41,7 @@ run_test() {
     local test_command="$2"
     
     echo -e "${YELLOW}Testing: $test_name${NC}"
-    
+    xhost +local:root    
     if docker exec "$CONTAINER_NAME" bash -c "$test_command" > /dev/null 2>&1; then
         echo -e "${GREEN}✅ PASS: $test_name${NC}"
         TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -64,8 +64,7 @@ trap cleanup EXIT
 echo -e "${YELLOW}Starting test container...${NC}"
 
 # Docker run arguments
-DOCKER_ARGS="-d --name $CONTAINER_NAME -e ROS_DISTRO=$ROS_DISTRO"
-
+DOCKER_ARGS="-d --name $CONTAINER_NAME -e ROS_DISTRO=$ROS_DISTRO -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw"
 # Add GPU support if enabled
 if [ "$ENABLE_GPU" = "true" ]; then
     DOCKER_ARGS="$DOCKER_ARGS --runtime=nvidia --gpus=all"
@@ -137,6 +136,14 @@ run_test "Simd library installed" "test -d /workspace/third_party/Simd"
 run_test "Simd headers available" "test -f /workspace/third_party/Simd/src/Simd/SimdLib.h"
 run_test "xsimd library installed" "test -d /workspace/third_party/xsimd"
 run_test "xsimd headers available" "test -f /workspace/third_party/xsimd/include/xsimd/xsimd.hpp"
+
+# GUI and ROS2 demo tests (only for ROS2 distros)
+if [ "$ROS_DISTRO" != "noetic" ]; then
+    echo -e "${BLUE}Running GUI and ROS2 demo tests...${NC}"
+    run_test "rqt_graph launches" "source /opt/ros/${ROS_DISTRO}/setup.bash && timeout 10s rqt_graph --help"
+    run_test "rviz2 launches" "source /opt/ros/${ROS_DISTRO}/setup.bash && timeout 10s rviz2 --help"
+    run_test "demo_nodes_cpp talker runs" "source /opt/ros/${ROS_DISTRO}/setup.bash && timeout 10s ros2 launch demo_nodes_cpp talker_listener.launch.py "
+fi
 
 # Test summary
 echo ""

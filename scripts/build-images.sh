@@ -21,8 +21,8 @@ TEST_AFTER_BUILD="true"
 
 # Supported configurations
 declare -A ROS_CONFIGS=(
-    ["humble-cpu"]="humble false 12.2 22.04"
-    ["humble-gpu"]="humble true 12.2 22.04"
+    ["humble-cpu"]="humble false 12.2.0 22.04"
+    ["humble-gpu"]="humble true 12.2.0 22.04"
     ["jazzy-cpu"]="jazzy false 12.9.1 24.04"        
     ["jazzy-gpu"]="jazzy true 12.9.1 24.04"           
     ["noetic-cpu"]="noetic false 11.8 20.04"
