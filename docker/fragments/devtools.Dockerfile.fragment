@@ -1,0 +1,17 @@
+# Locales and baseline dev tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    locales tzdata \
+    apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common \
+    build-essential git cmake ninja-build gdb \
+    python3-pip python3-venv python3-argcomplete \
+ && locale-gen en_US en_US.UTF-8 \
+ && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# pip tooling (colcon, vcstool, linters)
+COPY /common/pip-common.txt /tmp/pip-common.txt
+RUN python3 -m pip install --no-cache-dir -r /tmp/pip-common.txt && rm -f /tmp/pip-common.txt \
+ && activate-global-python-argcomplete || true

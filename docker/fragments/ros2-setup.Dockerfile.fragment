@@ -1,0 +1,24 @@
+# Configure ROS 2 repositories (Jammy/Noble etc.) via keyring + sources.list, with retries
+RUN set -e; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update && apt-get install -y --no-install-recommends curl ca-certificates gnupg lsb-release; \
+    mkdir -p /usr/share/keyrings; \
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg; \
+    . /etc/os-release; \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu ${UBUNTU_CODENAME} main" > /etc/apt/sources.list.d/ros2.list; \
+    # Conservative APT robustness settings
+    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries; \
+    echo 'Acquire::http::Timeout "30";' > /etc/apt/apt.conf.d/80timeout; \
+    echo 'Acquire::https::Timeout "30";' >> /etc/apt/apt.conf.d/80timeout; \
+    echo 'Acquire::http::Pipeline-Depth "0";' > /etc/apt/apt.conf.d/80nopipeline; \
+    echo 'Acquire::http::No-Cache "true";' > /etc/apt/apt.conf.d/80nocache; \
+    # Retry apt update a few times to ride out 503s
+    for i in 1 2 3 4 5; do \
+      apt-get update && break || { echo "apt update failed ($i), retrying..."; sleep $((i*5)); }; \
+    done; \
+    # Per ROS docs on Jammy: upgrade before installing ROS to avoid systemd/udev removal
+    apt-get -o Dpkg::Options::="--force-confnew" -y dist-upgrade || \
+      apt-get -y upgrade || true; \
+    # Install dev tools used by ROS workflows
+    apt-get install -y --no-install-recommends ros-dev-tools; \
+    rm -rf /var/lib/apt/lists/*

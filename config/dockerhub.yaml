@@ -1,0 +1,3 @@
+registry: docker.io
+namespace: mydockerhub
+repo: ros

@@ -1,0 +1,15 @@
+apt-transport-https
+ca-certificates
+curl
+gnupg
+lsb-release
+software-properties-common
+locales
+tzdata
+build-essential
+git
+cmake
+ninja-build
+gdb
+python3-pip
+python3-venv

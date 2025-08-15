@@ -1,0 +1,47 @@
+namespace: mydockerhub
+images:
+  - distro: noetic
+    ubuntu: focal
+    variant: cpu
+    tag: noetic-cpu
+  - distro: noetic
+    ubuntu: focal
+    variant: gpu
+    cuda: "11.8.0"
+    tag: noetic-gpu
+  - distro: humble
+    ubuntu: jammy
+    variant: cpu
+    tag: humble-cpu
+  - distro: humble
+    ubuntu: jammy
+    variant: gpu
+    cuda: "12.9.1"
+    tag: humble-gpu
+  - distro: rolling
+    ubuntu: jammy
+    variant: cpu
+    tag: rolling-cpu
+  - distro: rolling
+    ubuntu: jammy
+    variant: gpu
+    cuda: "12.9.1"
+    tag: rolling-gpu
+  - distro: jazzy
+    ubuntu: noble
+    variant: cpu
+    tag: jazzy-cpu
+  - distro: jazzy
+    ubuntu: noble
+    variant: gpu
+    cuda: "12.9.1"
+    tag: jazzy-gpu
+  - distro: kilted
+    ubuntu: noble
+    variant: cpu
+    tag: kilted-cpu
+  - distro: kilted
+    ubuntu: noble
+    variant: gpu
+    cuda: "12.9.1"
+    tag: kilted-gpu

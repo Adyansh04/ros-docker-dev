@@ -1,0 +1,33 @@
+# CPU images: start from official OSRF desktop-full for GUI-capable stacks
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+# Locale, common dev tools, GUI utilities, and Python tools
+ARG DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Install baseline apt packages
+COPY /common/apt-common.txt /tmp/apt-common.txt
+COPY /common/gui-common.txt /tmp/gui-common.txt
+RUN apt-get update && \
+    xargs -a /tmp/apt-common.txt apt-get install -y --no-install-recommends && \
+    xargs -a /tmp/gui-common.txt apt-get install -y --no-install-recommends && \
+    locale-gen en_US en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Dev tools via pip
+COPY /common/pip-common.txt /tmp/pip-common.txt
+RUN python3 -m pip install --no-cache-dir -r /tmp/pip-common.txt
+
+# Per-image extras
+ARG APT_EXTRAS=/dev/null
+ARG PIP_EXTRAS=/dev/null
+RUN if [ -s "$APT_EXTRAS" ]; then apt-get update && xargs -a "$APT_EXTRAS" apt-get install -y --no-install-recommends && rm -rf /var/lib/apt/lists/*; fi
+RUN if [ -s "$PIP_EXTRAS" ]; then python3 -m pip install --no-cache-dir -r "$PIP_EXTRAS"; fi
+
+# X11 convenience
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=all

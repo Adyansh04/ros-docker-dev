@@ -1,0 +1,7 @@
+# GUI/X11 OpenGL client libs and utilities
+COPY /common/gui-common.txt /tmp/gui-common.txt
+RUN apt-get update && xargs -a /tmp/gui-common.txt apt-get install -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* /tmp/gui-common.txt
+
+ENV DISPLAY=:0
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root

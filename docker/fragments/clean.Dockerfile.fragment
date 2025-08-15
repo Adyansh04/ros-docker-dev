@@ -1,0 +1,2 @@
+# Clean apt caches and temp files
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

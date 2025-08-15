@@ -1,0 +1,5 @@
+mesa-utils
+libgl1
+libglvnd0
+libx11-6
+x11-apps

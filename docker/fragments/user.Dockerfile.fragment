@@ -1,0 +1,47 @@
+ARG USERNAME=developer
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN set -e; \
+    groupadd --gid "${USER_GID}" "${USERNAME}" || true; \
+    useradd -m -s /bin/bash --uid "${USER_UID}" --gid "${USER_GID}" "${USERNAME}" || true; \
+    apt-get update && apt-get install -y --no-install-recommends sudo bash-completion && rm -rf /var/lib/apt/lists/*; \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/99-${USERNAME}; \
+    \
+    SNIP_FILE=/tmp/ros_bashrc_addons; \
+    : > "${SNIP_FILE}"; \
+    echo '# Bash completion' >> "${SNIP_FILE}"; \
+    echo 'if [ -f /etc/bash_completion ]; then' >> "${SNIP_FILE}"; \
+    echo '  . /etc/bash_completion' >> "${SNIP_FILE}"; \
+    echo 'fi' >> "${SNIP_FILE}"; \
+    echo '' >> "${SNIP_FILE}"; \
+    echo '# ROS setup (auto-detect ROS1/ROS2)' >> "${SNIP_FILE}"; \
+    echo 'if [ -d /opt/ros/noetic ]; then' >> "${SNIP_FILE}"; \
+    echo '  source /opt/ros/noetic/setup.bash' >> "${SNIP_FILE}"; \
+    echo 'elif [ -n "${ROS_DISTRO}" ] && [ -f "/opt/ros/${ROS_DISTRO}/setup.bash" ]; then' >> "${SNIP_FILE}"; \
+    echo '  source "/opt/ros/${ROS_DISTRO}/setup.bash"' >> "${SNIP_FILE}"; \
+    echo 'elif [ -d /opt/ros/humble ]; then' >> "${SNIP_FILE}"; \
+    echo '  export ROS_DISTRO=humble' >> "${SNIP_FILE}"; \
+    echo '  source /opt/ros/humble/setup.bash' >> "${SNIP_FILE}"; \
+    echo 'elif [ -d /opt/ros/rolling ]; then' >> "${SNIP_FILE}"; \
+    echo '  export ROS_DISTRO=rolling' >> "${SNIP_FILE}"; \
+    echo '  source /opt/ros/rolling/setup.bash' >> "${SNIP_FILE}"; \
+    echo 'elif [ -d /opt/ros/jazzy ]; then' >> "${SNIP_FILE}"; \
+    echo '  export ROS_DISTRO=jazzy' >> "${SNIP_FILE}"; \
+    echo '  source /opt/ros/jazzy/setup.bash' >> "${SNIP_FILE}"; \
+    echo 'fi' >> "${SNIP_FILE}"; \
+    echo '' >> "${SNIP_FILE}"; \
+    echo '# colcon argcomplete' >> "${SNIP_FILE}"; \
+    echo 'if command -v register-python-argcomplete >/dev/null 2>&1; then' >> "${SNIP_FILE}"; \
+    echo '  eval "$(register-python-argcomplete colcon)" || true' >> "${SNIP_FILE}"; \
+    echo 'fi' >> "${SNIP_FILE}"; \
+    \
+    touch /etc/bash.bashrc /root/.bashrc; \
+    grep -q "ROS setup (auto-detect ROS1/ROS2)" /etc/bash.bashrc || cat "${SNIP_FILE}" >> /etc/bash.bashrc; \
+    mkdir -p /home/${USERNAME}; touch /home/${USERNAME}/.bashrc; \
+    grep -q "ROS setup (auto-detect ROS1/ROS2)" /home/${USERNAME}/.bashrc || cat "${SNIP_FILE}" >> /home/${USERNAME}/.bashrc; \
+    rm -f "${SNIP_FILE}"; \
+    chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
+
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}

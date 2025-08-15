@@ -1,0 +1,48 @@
+# GPU images: start from NVIDIA cudagl devel for OpenGL/X11 capable CUDA base
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Baseline packages and GUI/X support
+COPY /common/apt-common.txt /tmp/apt-common.txt
+COPY /common/gui-common.txt /tmp/gui-common.txt
+RUN apt-get update && \
+    xargs -a /tmp/apt-common.txt apt-get install -y --no-install-recommends && \
+    xargs -a /tmp/gui-common.txt apt-get install -y --no-install-recommends && \
+    locale-gen en_US en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Add ROS apt sources using ros-apt-source (official mechanism for ROS 2 and ROS 1 repos)
+# Note: ros-dev-tools is a meta that works for ROS dev tooling
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
+    . /etc/os-release && \
+    curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}_${VERSION_CODENAME}_all.deb" && \
+    dpkg -i /tmp/ros2-apt-source.deb && \
+    apt-get update && apt-get install -y --no-install-recommends ros-dev-tools && \
+    rm -rf /var/lib/apt/lists/* /tmp/ros2-apt-source.deb
+# Install ROS meta for requested distro (ros-<distro>-desktop/full)
+ARG ROS_META
+RUN if [ -n "$ROS_META" ]; then \
+      apt-get update && apt-get install -y --no-install-recommends "$ROS_META" && \
+      rm -rf /var/lib/apt/lists/*; \
+    fi
+
+# Python dev tools
+COPY /common/pip-common.txt /tmp/pip-common.txt
+RUN python3 -m pip install --no-cache-dir -r /tmp/pip-common.txt
+
+# Per-image extras
+ARG APT_EXTRAS=/dev/null
+ARG PIP_EXTRAS=/dev/null
+RUN if [ -s "$APT_EXTRAS" ]; then apt-get update && xargs -a "$APT_EXTRAS" apt-get install -y --no-install-recommends && rm -rf /var/lib/apt/lists/*; fi
+RUN if [ -s "$PIP_EXTRAS" ]; then python3 -m pip install --no-cache-dir -r "$PIP_EXTRAS"; fi
+
+# X11 & NVIDIA runtime hints
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=all

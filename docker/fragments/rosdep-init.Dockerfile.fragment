@@ -1,0 +1,8 @@
+# Initialize rosdep (no-op if not present yet)
+RUN set -e; \
+ if command -v rosdep >/dev/null 2>&1; then \
+   if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
+     rosdep init || true; \
+   fi; \
+   rosdep update || true; \
+ fi
