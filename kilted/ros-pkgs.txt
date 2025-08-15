@@ -1,0 +1,15 @@
+# Navigation
+ros-kilted-navigation2
+ros-kilted-nav2-bringup
+
+# Control
+ros-kilted-ros2-control
+ros-kilted-control-toolbox
+ros-kilted-controller-manager
+ros-kilted-controller-interface
+
+# SLAM
+ros-kilted-slam-toolbox
+
+# Other
+ros-kilted-xacro

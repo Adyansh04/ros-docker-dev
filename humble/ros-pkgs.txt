@@ -1,0 +1,16 @@
+# Navigation
+ros-humble-navigation2
+ros-humble-nav2-bringup
+
+# Control
+ros-humble-ros2-control
+ros-humble-control-toolbox
+ros-humble-controller-manager
+ros-humble-controller-interface
+
+# SLAM
+ros-humble-slam-toolbox
+
+# Other
+ros-humble-xacro
+ros-humble-turtle-nest

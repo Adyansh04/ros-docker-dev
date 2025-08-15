@@ -1,0 +1,16 @@
+# Navigation
+ros-jazzy-navigation2
+ros-jazzy-nav2-bringup
+
+# Control
+ros-jazzy-ros2-control
+ros-jazzy-control-toolbox
+ros-jazzy-controller-manager
+ros-jazzy-controller-interface
+
+# SLAM
+ros-jazzy-slam-toolbox
+
+# Other
+ros-jazzy-xacro
+ros-jazzy-turtle-nest

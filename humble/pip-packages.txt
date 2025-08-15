@@ -1,0 +1,9 @@
+# Build Tools
+colcon-common-extensions
+
+# Common Libraries
+numpy
+scipy
+pandas
+
+em

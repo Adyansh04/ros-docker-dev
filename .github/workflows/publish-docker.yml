@@ -1,0 +1,40 @@
+name: Manual Build & Push Docker image (Docker Hub)
+
+on:
+  workflow_dispatch:
+    inputs:
+      distro:
+        description: 'Distro folder to build (e.g. humble | jazzy | kilted)'
+        required: true
+        default: 'humble'
+      image_tag:
+        description: 'Image tag to push (e.g. latest or 0.15.0)'
+        required: true
+        default: 'latest'
+
+env:
+  IMAGE_NAME: ros-dev
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./${{ github.event.inputs.distro }}
+          file: ./${{ github.event.inputs.distro }}/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
+          build-args: |
+            ROS_DISTRO=${{ github.event.inputs.distro }}
