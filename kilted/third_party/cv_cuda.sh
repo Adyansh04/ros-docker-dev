@@ -1,4 +1,3 @@
-# ...existing code...
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -143,4 +142,3 @@ ${SUDO} grep -qxF "LD_LIBRARY_PATH=${CVCUDA_DIR_DETECTED}/lib" /etc/environment 
 
 echo "cvcuda install script finished. Verify with: python${PY_VER} -c 'import cvcuda' (if python bindings installed)."
 echo "If you want to use the exact URL from your reference, set: CVCUDA_GITHUB_TAG='v0.15.0-beta'"
-# ...existing code...

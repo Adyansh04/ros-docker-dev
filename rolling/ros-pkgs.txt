@@ -1,0 +1,15 @@
+# Navigation
+ros-rolling-navigation2
+ros-rolling-nav2-bringup
+
+# Control
+ros-rolling-ros2-control
+ros-rolling-control-toolbox
+ros-rolling-controller-manager
+ros-rolling-controller-interface
+
+# SLAM
+ros-rolling-slam-toolbox
+
+# Other
+ros-rolling-xacro

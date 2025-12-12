@@ -1,7 +1,7 @@
 # ROS Docker Dev (multi-distro)
 
 Lightweight helper repo to build development Docker images for multiple ROS distros
-(humble, jazzy, kilted). Images include CUDA tooling, third-party installers and a test
+(humble, jazzy, kilted, noetic, rolling). Images include CUDA tooling, third-party installers and a test
 harness.
 
 ## Repo layout
@@ -9,11 +9,11 @@ harness.
 - [run.sh](run.sh) — run helper (uses distro env: [<distro>/env.list](humble/env.list))
 - .github/workflows/publish-docker.yml — GitHub Actions workflow for publishing images
 - Distros:
-  - [humble/](humble/) — Ubuntu 22.04 image ([humble/Dockerfile](humble/Dockerfile))
-  - [jazzy/](jazzy/) — Ubuntu 24.04 image ([jazzy/Dockerfile](jazzy/Dockerfile))
-  - [kilted/](kilted/) — Ubuntu 24.04 image ([kilted/Dockerfile](kilted/Dockerfile))
-  - noetic/ (TODO)
-  - rolling/ (TODO)
+  - [humble/](humble/) — ROS 2 Humble on Ubuntu 22.04 ([humble/Dockerfile](humble/Dockerfile))
+  - [jazzy/](jazzy/) — ROS 2 Jazzy on Ubuntu 24.04 ([jazzy/Dockerfile](jazzy/Dockerfile))
+  - [kilted/](kilted/) — ROS 2 Kilted on Ubuntu 24.04 ([kilted/Dockerfile](kilted/Dockerfile))
+  - [noetic/](noetic/) — ROS 1 Noetic on Ubuntu 20.04 ([noetic/Dockerfile](noetic/Dockerfile))
+  - [rolling/](rolling/) — ROS 2 Rolling on Ubuntu 24.04 ([rolling/Dockerfile](rolling/Dockerfile))
 - Each distro contains:
   - Dockerfile (e.g. [humble/Dockerfile](humble/Dockerfile))
   - [env.list](humble/env.list) (controls `ROS_DISTRO` and container envs)
@@ -58,16 +58,30 @@ These scripts install under `/root/third_party` during build and set environment
 ## Publishing images to Docker Hub (GitHub Actions)
 This repo includes a manual workflow: [.github/workflows/publish-docker.yml](.github/workflows/publish-docker.yml)
 
-Steps:
+### Workflow Features
+- **Distro selection via dropdown**: Choose from humble, jazzy, kilted, noetic, rolling, or "all" to build multiple distros at once
+- **Optional tag suffix**: Add custom suffixes like "-dev" or "-v1.0" to your image tags
+- **Matrix builds**: When "all" is selected, all distros are built in parallel
+- **Build caching**: Uses GitHub Actions cache for faster subsequent builds
+
+### Steps:
 1. Create Docker Hub access token (Docker Hub → Account → Security → New Access Token).
 2. Add GitHub repo secrets:
    - `DOCKERHUB_USERNAME` = your Docker Hub username
    - `DOCKERHUB_TOKEN` = Docker Hub access token
-3. Trigger the workflow (UI) — Actions → "Manual Build & Push Docker image (Docker Hub)" → Run workflow.
-   - Inputs: `distro` (e.g. `humble`) and `image_tag` (e.g. `latest`).
+3. Trigger the workflow (UI) — Actions → "Build & Push Docker Images (Docker Hub)" → Run workflow.
+   - Select distro from dropdown (humble, jazzy, kilted, noetic, rolling, or all)
+   - Optionally add a tag suffix (e.g., "-dev", "-v1.0")
 4. Or use GitHub CLI:
 ```sh
-gh workflow run publish-docker.yml --repo <owner>/<repo> --field distro=humble --field image_tag=latest
+# Build single distro
+gh workflow run publish-docker.yml --repo <owner>/<repo> -f distro=humble
+
+# Build all distros
+gh workflow run publish-docker.yml --repo <owner>/<repo> -f distro=all
+
+# Build with custom tag suffix
+gh workflow run publish-docker.yml --repo <owner>/<repo> -f distro=humble -f tag_suffix=-dev
 ```
 
 Notes on triggers
@@ -82,5 +96,4 @@ Notes on triggers
 - Container env defaults live in each distro `env.list` (e.g. [`ROS_DISTRO` in humble/env.list](humble/env.list)).
 
 ## TODO
-- Implement images for `noetic/` and `rolling/` (placeholders present).
 - Add multi-arch build support if you require ARM images.
