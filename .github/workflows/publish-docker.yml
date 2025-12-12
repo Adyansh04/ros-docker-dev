@@ -27,6 +27,7 @@ jobs:
   # Prepare the matrix based on input
   prepare:
     runs-on: ubuntu-latest
+    permissions: {}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -42,6 +43,8 @@ jobs:
   build-and-push:
     needs: prepare
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

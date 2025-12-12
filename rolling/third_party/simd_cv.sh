@@ -34,7 +34,7 @@ cmake ../prj/cmake \
     -DSIMD_UNINSTALL=ON \
     -DSIMD_PYTHON=ON
 
-make -j 20
+make -j"$(nproc)"
 make install
 
 echo "--- Simd installation complete ---"

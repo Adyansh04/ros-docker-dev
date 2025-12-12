@@ -52,9 +52,10 @@ esac
 # Try to detect the installed directory under /usr/local
 CUDSS_DIR_DETECTED="$(ls -d /usr/local/libcudss-linux-* 2>/dev/null | head -n1 || true)"
 
-# Fallback to the explicit path you requested if detection failed
+# Fallback: use /usr if detection failed (cudss may install to system paths)
 if [ -z "$CUDSS_DIR_DETECTED" ]; then
-    CUDSS_DIR_DETECTED="/usr/local/libcudss-linux-0.3.0.9_cuda12-archive"
+    CUDSS_DIR_DETECTED="/usr"
+    echo "Warning: Could not detect cudss install directory, using fallback: ${CUDSS_DIR_DETECTED}"
 fi
 
 echo "Detected CUDSS_DIR: ${CUDSS_DIR_DETECTED}"
