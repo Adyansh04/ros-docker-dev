@@ -1,40 +1,94 @@
-name: Manual Build & Push Docker image (Docker Hub)
+name: Build & Push Docker Images (Docker Hub)
 
 on:
   workflow_dispatch:
     inputs:
       distro:
-        description: 'Distro folder to build (e.g. humble | jazzy | kilted)'
+        description: 'ROS distro to build'
         required: true
+        type: choice
+        options:
+          - humble
+          - jazzy
+          - kilted
+          - noetic
+          - rolling
+          - all
         default: 'humble'
-      image_tag:
-        description: 'Image tag to push (e.g. latest or 0.15.0)'
-        required: true
-        default: 'latest'
+      tag_suffix:
+        description: 'Optional tag suffix (e.g., "-dev", "-v1.0"). Leave empty for default tags.'
+        required: false
+        default: ''
 
 env:
   IMAGE_NAME: ros-dev
 
 jobs:
-  build-and-push:
+  # Prepare the matrix based on input
+  prepare:
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          if [ "${{ github.event.inputs.distro }}" = "all" ]; then
+            echo 'matrix=["humble","jazzy","kilted","noetic","rolling"]' >> $GITHUB_OUTPUT
+          else
+            echo 'matrix=["${{ github.event.inputs.distro }}"]' >> $GITHUB_OUTPUT
+          fi
+
+  build-and-push:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Generate tags
+        id: tags
+        run: |
+          DISTRO="${{ matrix.distro }}"
+          SUFFIX="${{ github.event.inputs.tag_suffix }}"
+          BASE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
+          
+          # Always push distro name as tag
+          TAGS="${BASE_TAG}:${DISTRO}"
+          
+          # Add suffix version if provided
+          if [ -n "${SUFFIX}" ]; then
+            TAGS="${TAGS},${BASE_TAG}:${DISTRO}${SUFFIX}"
+          fi
+          
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "Generated tags: ${TAGS}"
+
       - name: Build and push image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
-          context: ./${{ github.event.inputs.distro }}
-          file: ./${{ github.event.inputs.distro }}/Dockerfile
+          context: ./${{ matrix.distro }}
+          file: ./${{ matrix.distro }}/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
+          tags: ${{ steps.tags.outputs.tags }}
           build-args: |
-            ROS_DISTRO=${{ github.event.inputs.distro }}
+            ROS_DISTRO=${{ matrix.distro }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

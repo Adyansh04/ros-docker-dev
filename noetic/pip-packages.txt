@@ -1,0 +1,9 @@
+# Build Tools
+catkin_tools
+
+# Common Libraries
+numpy
+scipy
+pandas
+
+em

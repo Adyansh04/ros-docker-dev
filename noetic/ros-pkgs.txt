@@ -1,0 +1,18 @@
+# Navigation
+ros-noetic-navigation
+ros-noetic-move-base
+
+# Control
+ros-noetic-ros-control
+ros-noetic-ros-controllers
+ros-noetic-control-toolbox
+ros-noetic-controller-manager
+
+# SLAM
+ros-noetic-gmapping
+ros-noetic-slam-gmapping
+
+# Other
+ros-noetic-xacro
+ros-noetic-robot-state-publisher
+ros-noetic-joint-state-publisher
