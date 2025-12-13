@@ -57,16 +57,21 @@ ${SUDO} apt-get install -y libnvvpi3 vpi3-dev vpi3-samples
 echo "--- vpi_nv: installing Python bindings (if available) ---"
 case "$VERSION_ID" in
   "20.04"|"20.4")
-    ${SUDO} apt-get install -y python3.9-vpi3 || true
+    # Ubuntu 20.04 has Python 3.8 by default
+    ${SUDO} apt-get install -y python3.8-vpi3 || true
     ;;
   "22.04"|"22.4")
     # Try to install both bindings if available
     ${SUDO} apt-get install -y python3.9-vpi3 || true
     ${SUDO} apt-get install -y python3.10-vpi3 || true
     ;;
+  "24.04"|"24.4")
+    # Ubuntu 24.04 has Python 3.12
+    ${SUDO} apt-get install -y python3.12-vpi3 || true
+    ;;
   *)
     # try generic install
-    ${SUDO} apt-get install -y python3.9-vpi3 python3.10-vpi3 || true
+    ${SUDO} apt-get install -y python3.8-vpi3 python3.9-vpi3 python3.10-vpi3 || true
     ;;
 esac
 

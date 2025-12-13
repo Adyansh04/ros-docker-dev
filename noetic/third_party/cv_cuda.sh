@@ -61,8 +61,9 @@ echo "Detected CUDA_MAJOR=${CUDA_MAJOR}"
 CU_VER="cuda${CUDA_MAJOR}"
 
 # Detect best Python version available for bindings (prefer highest minor)
+# NOTE: Includes 3.8 for Ubuntu 20.04 compatibility
 PY_VER=""
-for v in 3.12 3.11 3.10 3.9; do
+for v in 3.12 3.11 3.10 3.9 3.8; do
     if command -v "python${v}" >/dev/null 2>&1; then
         PY_VER="${v}"
         break

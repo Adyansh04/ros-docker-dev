@@ -81,6 +81,7 @@ RUN apt-get install -y --no-install-recommends \
 
 
 # Extra Python tooling and libs
+# NOTE: Version pins for Python 3.8 (Ubuntu 20.04) compatibility
 RUN python3 -m pip install -U --no-cache-dir \
     argcomplete \
     autopep8 \
@@ -97,15 +98,15 @@ RUN python3 -m pip install -U --no-cache-dir \
     h11 \
     importlib_resources \
     networkx \
-    numpy \
+    "numpy<2.0" \
     numpy-quaternion \
-    onnx \
+    "onnx<1.16" \
     pydocstyle \
     pymongo \
     pyyaml \
-    scipy \
-    scikit-image \
-    scikit-learn \
+    "scipy<1.12" \
+    "scikit-image<0.23" \
+    "scikit-learn==1.3.2" \
     setuptools_scm \
     tqdm \
     trimesh \
@@ -128,9 +129,15 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 # Section 4: Install custom tools and libraries
 
 # Install CuPy and HDBSCAN
-RUN python3 -m pip install -U \
+# NOTE: For Python 3.8 (Ubuntu 20.04), we must pin versions:
+#   - scikit-learn < 1.6 (latest hdbscan requires >= 1.6 which doesn't exist)
+#   - hdbscan pinned to compatible version
+#   - numpy < 2.0 for Python 3.8 compatibility
+RUN python3 -m pip install -U --no-cache-dir \
+    "numpy<2.0" \
+    "scikit-learn==1.3.2" \
     cupy-cuda12x \
-    hdbscan
+    "hdbscan==0.8.33"
 
 # Copy and execute all installation scripts from the tools and third_party directories
 COPY tools/ /tmp/tools/
