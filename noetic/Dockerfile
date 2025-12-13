@@ -69,9 +69,9 @@ COPY apt-packages.txt pip-packages.txt ros-pkgs.txt /tmp/
 
 # Install additional packages
 RUN apt-get install -y --no-install-recommends \
-    apt-transport-https apt-utils clang-format git-lfs iputils-ping libpopt0 mlocate plocate rsync unzip \
+    apt-transport-https apt-utils clang-format git-lfs iputils-ping libpopt0 mlocate rsync unzip \
     javascript-common libjs-jquery-hotkeys libjs-jquery-isonscreen libjs-jquery-metadata libjs-jquery-tablesorter libjs-jquery-throttle-debounce \
-    python3-pip python3-pip-whl python3-setuptools-whl \
+    python3-pip \
     binfmt-support gfortran jq kmod lcov libasio-dev libatlas-base-dev libatlas3-base libcunit1 libcunit1-dev \
     libhidapi-libusb0 libjq1 libmnl-dev libmnl0 \
     libncurses-dev libncurses5-dev libonig5 libpcap-dev libpcap0.8-dev libpfm4 libturbojpeg \
