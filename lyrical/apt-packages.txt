@@ -1,0 +1,10 @@
+# Development Tools
+git
+vim
+htop
+terminator
+ssh-client
+
+# GUI & Graphics
+mesa-utils
+x11-apps

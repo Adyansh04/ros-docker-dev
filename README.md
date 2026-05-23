@@ -18,8 +18,11 @@ A comprehensive Docker-based development environment for ROS (Robot Operating Sy
 | [humble](humble/) | ROS 2 Humble Hawksbill | 22.04 | 13.0 | ✅ LTS (2027) |
 | [jazzy](jazzy/) | ROS 2 Jazzy Jalisco | 24.04 | 13.0 | ✅ LTS (2029) |
 | [kilted](kilted/) | ROS 2 Kilted Kaiju | 24.04 | 13.0 | ✅ Stable |
+| [lyrical](lyrical/) | ROS 2 Lyrical Luth | 26.04 | 13.0* | ✅ LTS (2031) |
 | [noetic](noetic/) | ROS 1 Noetic Ninjemys | 20.04 | 12.6 | ✅ LTS (2025) |
 | [rolling](rolling/) | ROS 2 Rolling Ridley | 24.04 | 13.0 | ⚠️ Development |
+
+* CUDA image tag for Ubuntu 26.04 is a placeholder until NVIDIA publishes an official `ubuntu26.04` CUDA image.
 
 ## Quick Start
 
@@ -76,6 +79,7 @@ ros-docker-dev/
 │   └── tools/                  # Development tool installers
 ├── jazzy/                      # ROS 2 Jazzy configuration
 ├── kilted/                     # ROS 2 Kilted configuration
+├── lyrical/                    # ROS 2 Lyrical configuration
 ├── noetic/                     # ROS 1 Noetic configuration
 └── rolling/                    # ROS 2 Rolling configuration
 ```
@@ -182,15 +186,23 @@ gh workflow run publish-docker.yml -f distro=all
 
 # Build with custom tag suffix
 gh workflow run publish-docker.yml -f distro=humble -f tag_suffix=-v1.0
+
+# Build with custom base image (single distro only)
+gh workflow run publish-docker.yml -f distro=humble -f base_image=nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04
 ```
 
 ### Resulting Tags
 
 | Input | Resulting Tags |
 |-------|----------------|
-| `distro=humble` | `username/ros-dev:humble` |
-| `distro=humble, tag_suffix=-dev` | `username/ros-dev:humble`, `username/ros-dev:humble-dev` |
-| `distro=all` | Tags for all 5 distros |
+| `distro=humble` | `username/ros-dev:humble`, `username/ros-dev:humble-latest` |
+| `distro=humble, tag_suffix=-dev` | `username/ros-dev:humble`, `username/ros-dev:humble-latest`, `username/ros-dev:humble-dev` |
+| `distro=all` | Tags for all 6 distros |
+
+### Latest / Previous Tags
+
+- Each build for a distro pushes `username/ros-dev:<distro>-latest`.
+- If a previous `-latest` tag exists, it is preserved as `username/ros-dev:<distro>-prev-YYYYMMDD` before the new build is pushed.
 
 ## Build Arguments
 
@@ -199,6 +211,7 @@ Override defaults at build time:
 ```bash
 docker build \
   --build-arg ROS_DISTRO=humble \
+  --build-arg BASE_IMAGE=nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04 \
   --build-arg ROS_DOMAIN_ID=1 \
   --build-arg NVIDIA_VISIBLE_DEVICES=0 \
   -t ros-dev:humble ./humble
@@ -207,6 +220,7 @@ docker build \
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `ROS_DISTRO` | varies | ROS distribution name |
+| `BASE_IMAGE` | varies | Base image override (optional) |
 | `ROS_DOMAIN_ID` | 0 | ROS domain ID for multi-robot |
 | `NVIDIA_VISIBLE_DEVICES` | all | GPU visibility |
 | `NVIDIA_DRIVER_CAPABILITIES` | compute,utility,graphics,video,display | Driver capabilities |

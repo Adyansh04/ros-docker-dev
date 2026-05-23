@@ -23,7 +23,6 @@ echo "Running container ${CONTAINER_NAME} from image ${IMAGE_NAME}:${TAG}"
 
 docker run -it --rm \
     --name "${CONTAINER_NAME}" \
-    --runtime=nvidia \
     --gpus all \
     --privileged \
     --net=host \

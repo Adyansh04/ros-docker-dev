@@ -11,12 +11,17 @@ on:
           - humble
           - jazzy
           - kilted
+          - lyrical
           - noetic
           - rolling
           - all
         default: 'humble'
       tag_suffix:
         description: 'Optional tag suffix (e.g., "-dev", "-v1.0"). Leave empty for default tags.'
+        required: false
+        default: ''
+      base_image:
+        description: 'Optional base image override (e.g., "nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04"). Leave empty to use Dockerfile defaults.'
         required: false
         default: ''
 
@@ -35,7 +40,7 @@ jobs:
         id: set-matrix
         run: |
           if [ "${{ github.event.inputs.distro }}" = "all" ]; then
-            echo 'matrix=["humble","jazzy","kilted","noetic","rolling"]' >> $GITHUB_OUTPUT
+            echo 'matrix=["humble","jazzy","kilted","lyrical","noetic","rolling"]' >> $GITHUB_OUTPUT
           else
             echo 'matrix=["${{ github.event.inputs.distro }}"]' >> $GITHUB_OUTPUT
           fi
@@ -73,6 +78,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Validate base image input
+        run: |
+          if [ "${{ github.event.inputs.distro }}" = "all" ] && [ -n "${{ github.event.inputs.base_image }}" ]; then
+            echo "base_image input is only supported for a single distro build."
+            exit 1
+          fi
+
+      - name: Retag previous latest (if exists)
+        run: |
+          DISTRO="${{ matrix.distro }}"
+          BASE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
+          LATEST_TAG="${BASE_TAG}:${DISTRO}-latest"
+          PREV_TAG="${BASE_TAG}:${DISTRO}-prev-$(date -u +%Y%m%d)"
+
+          echo "Checking for existing latest tag: ${LATEST_TAG}"
+          if docker buildx imagetools inspect "${LATEST_TAG}" >/dev/null 2>&1; then
+            echo "Retagging ${LATEST_TAG} -> ${PREV_TAG}"
+            docker buildx imagetools create -t "${PREV_TAG}" "${LATEST_TAG}"
+          else
+            echo "No existing latest tag found; skipping."
+          fi
+
       - name: Generate tags
         id: tags
         run: |
@@ -80,8 +107,8 @@ jobs:
           SUFFIX="${{ github.event.inputs.tag_suffix }}"
           BASE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
           
-          # Always push distro name as tag
-          TAGS="${BASE_TAG}:${DISTRO}"
+          # Always push distro name and latest tags
+          TAGS="${BASE_TAG}:${DISTRO},${BASE_TAG}:${DISTRO}-latest"
           
           # Add suffix version if provided
           if [ -n "${SUFFIX}" ]; then
@@ -91,6 +118,18 @@ jobs:
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
           echo "Generated tags: ${TAGS}"
 
+      - name: Generate build args
+        id: build-args
+        run: |
+          {
+            echo "args<<EOF"
+            echo "ROS_DISTRO=${{ matrix.distro }}"
+            if [ -n "${{ github.event.inputs.base_image }}" ]; then
+              echo "BASE_IMAGE=${{ github.event.inputs.base_image }}"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
@@ -99,7 +138,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ steps.tags.outputs.tags }}
-          build-args: |
-            ROS_DISTRO=${{ matrix.distro }}
+          build-args: ${{ steps.build-args.outputs.args }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

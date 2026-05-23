@@ -13,3 +13,6 @@ ros-rolling-slam-toolbox
 
 # Other
 ros-rolling-xacro
+
+# Gazebo
+ros-rolling-ros-gz

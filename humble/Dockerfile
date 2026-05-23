@@ -1,5 +1,6 @@
-# Base image with CUDA 13.0 and cuDNN for Ubuntu 22.04
-FROM nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04
+# Base image with CUDA 13.0 and cuDNN for Ubuntu 22.04 (default)
+ARG BASE_IMAGE=nvidia/cuda:13.0.0-cudnn-devel-ubuntu22.04
+FROM ${BASE_IMAGE}
 
 # Prevent interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -145,6 +146,7 @@ RUN set -eux; \
 # Section 5: Configure Environment
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc && \
+    echo "source /usr/share/gazebo/setup.sh" >> ~/.bashrc && \
     echo 'if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi' >> ~/.bashrc
 
 # Section 6: Cleanup

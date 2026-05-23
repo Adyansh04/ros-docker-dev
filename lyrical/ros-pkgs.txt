@@ -1,0 +1,15 @@
+# Navigation
+ros-lyrical-navigation2
+ros-lyrical-nav2-bringup
+
+# Control
+ros-lyrical-ros2-control
+ros-lyrical-control-toolbox
+ros-lyrical-controller-manager
+ros-lyrical-controller-interface
+
+# SLAM
+ros-lyrical-slam-toolbox
+
+# Other
+ros-lyrical-xacro

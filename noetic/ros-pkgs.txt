@@ -16,3 +16,6 @@ ros-noetic-slam-gmapping
 ros-noetic-xacro
 ros-noetic-robot-state-publisher
 ros-noetic-joint-state-publisher
+
+# Gazebo
+ros-noetic-gazebo-ros-pkgs

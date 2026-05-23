@@ -1,5 +1,6 @@
-# Base image with CUDA 13.0 and cuDNN for Ubuntu 24.04
-FROM nvidia/cuda:13.0.0-cudnn-devel-ubuntu24.04
+# Base image with CUDA 13.0 and cuDNN for Ubuntu 24.04 (default)
+ARG BASE_IMAGE=nvidia/cuda:13.0.0-cudnn-devel-ubuntu24.04
+FROM ${BASE_IMAGE}
 
 # Prevent interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
